@@ -5,7 +5,7 @@ var crypto = require('../utils/encryption');
 const db = require('../config/database');
 
 router.post('/updateKey', function(req, res, next) {
-
+  db.connect();
     let pubKey = req.body.pub;
   
   
@@ -15,13 +15,14 @@ router.post('/updateKey', function(req, res, next) {
       });
       if(result)
       console.log(result);
+      db.end();
         res.json(result);
     });
   
   });
 
   router.post('/makePurchase', function(req, res, next) {
-
+    db.connect();
     let data = req.body;
     console.log(data)
   
@@ -34,6 +35,7 @@ router.post('/updateKey', function(req, res, next) {
                   });
                   //console.log(result);
                   //console.log(fields);
+                  db.end();
                   res.status(200);
       })
   

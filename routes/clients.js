@@ -4,9 +4,11 @@ var uuid = require('uuid');
 var crypto = require('../utils/encryption');
 const db = require('../config/database');
 
+
+
 /* GET user info. */
 router.get('/:uuid', function(req, res, next) {
-
+  db.connect();
   let clientUuid = req.params.uuid;
   
   db.query('SELECT * FROM user where unique_id=?',[clientUuid],function(err, result, fields){
@@ -18,7 +20,7 @@ router.get('/:uuid', function(req, res, next) {
       let cardNumber =result[0].cardNumber;
       let cardCcv =result[0].cardCcv;
       let cardDate =result[0].cardDate; 
- 
+      db.end();
 
       res.json({'username':username, 'name':name, 'cardNumber':cardNumber, 'cardCcv': cardCcv, 'cardDate':cardDate});
     
@@ -26,7 +28,7 @@ router.get('/:uuid', function(req, res, next) {
 });
 
 router.get('/storePk/:uuid', function(req, res, next) {
-
+  db.connect();
   let clientUuid = req.params.uuid;
   
   db.query('SELECT * FROM user where unique_id=?',[clientUuid],function(err, result, fields){
@@ -36,6 +38,7 @@ router.get('/storePk/:uuid', function(req, res, next) {
       let storeKey = result[0].checkoutKey;
  
  
+      db.end();
 
       res.json({'storeKey':storeKey});
     
@@ -44,7 +47,7 @@ router.get('/storePk/:uuid', function(req, res, next) {
 
 /* POST clinet register. */
 router.post('/register', function(req, res, next) {
-
+  db.connect();
   let data = req.body;
 
   let uid = uuid.v4();
@@ -75,6 +78,8 @@ router.post('/register', function(req, res, next) {
                   });
                   //console.log(result);
                   //console.log(fields);
+                  db.end();
+
                   res.send({'uuid':uid.toString()});
       })
     }
@@ -83,7 +88,7 @@ router.post('/register', function(req, res, next) {
 });
 
 router.post('/login', function(req, res, next){
-
+  db.connect();
   let data = req.body;
 
 
@@ -98,13 +103,21 @@ router.post('/login', function(req, res, next){
       let salt = result[0].salt;
       let encrypted_password = result[0].encrypted_password;
       let hashed_password = crypto.checkHashPassword(user_password, salt).passwordHash;
-      if(encrypted_password == hashed_password)
+      if(encrypted_password == hashed_password){
+        db.end();
+
         res.end(JSON.stringify(result[0]));
-      else
+      }
+      else{
+        db.end();
+
         res.end(JSON.stringify('Wrong password'));
+      }
     }
     else
     {
+      db.end();
+
       res.json('Login sucessful');
     }
   });
@@ -112,7 +125,7 @@ router.post('/login', function(req, res, next){
 });
 
 router.get('/transactions/:uuid', function(req,res, next) {
-
+  db.connect();
   let clientUuid = req.params.uuid;
   let responseJson;
   
@@ -140,6 +153,8 @@ router.get('/transactions/:uuid', function(req,res, next) {
     }
 
     //console.log(JSON.);
+    db.end();
+
     res.json(responseJson);
 });
 });

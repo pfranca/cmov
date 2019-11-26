@@ -13,6 +13,8 @@ db.connect((err) => {
   console.log("Mysql Connected...")
 });
 
+db.end();
+
 var indexRouter = require('./routes/index');
 var clientsRouter = require('./routes/clients');
 var storeRouter = require('./routes/store');
